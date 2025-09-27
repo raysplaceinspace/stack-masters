@@ -1,0 +1,9 @@
+[project]
+name = "Dice Stackers!"
+domain = "easel.games/@raysplaceinspace/dice-stackers"
+
+[authors]
+"u1z.DHAVSGw" = "raysplaceinspace"
+
+[engine]
+edition = 14

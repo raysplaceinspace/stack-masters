@@ -1,0 +1,128 @@
+pub accumulator owner.ElapsedDurationNegated // negative because database sorts from highest to lowest
+
+pub game fn World.Main() {
+    Gravity = 30
+
+    ButtonRemap(Tap, Click)
+
+    SolidBackground(#181818)
+    Camera(@(0,0), radius=25)
+    Spawn boundary {
+        Boundary(height=100, pos=@(0, 20 + height/2), heading=0)
+    }
+    Spawn boundary {
+        Boundary(height=100, pos=@(0, -30 - height/2), heading=0.5rev)
+    }
+    Spawn boundary {
+        Boundary(height=100, pos=@(-5 - height/2, 0), heading=-0.25rev)
+    }
+    Spawn boundary {
+        Boundary(height=100, pos=@(5 + height/2, 0), heading=0.25rev)
+    }
+    
+    SpawnEachPlayer owner {
+        on ButtonDown(Click) {
+            use dice = Pointer.QueryNearest(filter=Category:Dice)
+            use body=dice
+            behavior<dragDice> on BeforePhysics {
+                if !dice.Exists { break }
+                let posDelta = Pointer - (Pos + 2 * Velocity / 1s)
+                
+                let targetVelocity = posDelta * 1s
+                let velocityDelta = (targetVelocity - Velocity).Truncate(100)
+
+                ApplyImpulse(0.25 * velocityDelta * Mass)
+                dice.Strobe(shine=0.25)
+            }
+
+            await ButtonUp(Click)
+            delete behavior<dragDice>
+
+            if dice.Exists {
+                Velocity = Velocity.Truncate(50)
+            }
+        }
+    }
+
+    // Main game loop
+    on Tick {
+        let beginning = Tick
+        await Spawn {
+            const NumDicePerNumber = 5
+    
+            Content {
+                Panel(maxWidth=15) {
+                    H3 { "Sort the dice!" }
+                    P { 
+                        "Stack the smaller numbers on top of the bigger numbers."
+                    }
+                    P { "How fast can you do it?" }
+                }
+            }
+        
+            TopContent {
+                with Tick(1s) {
+                    H3 {
+                        "Elapsed: " + Floor((Tick - beginning) / 1s) + "s"
+                    }
+                }
+            }
+            
+            // Spawn all dice
+            let remaining = []
+            for diceNumber in RangeInclusive(1, 6) {
+                repeat NumDicePerNumber {
+                    remaining.Push(diceNumber)
+                }
+            }
+            Shuffle(remaining)
+    
+            while !remaining.IsEmpty {
+                let diceNumber = remaining.Pop
+                
+                Spawn dice {
+                    Dice(pos=@(1 * SignedRandom, -25), diceNumber=)
+                    give AllDice(dice)
+                }
+    
+                await Tick(0.1s)
+            }
+    
+            // Wait for win condition
+            while !CheckAreDiceOrdered {
+                await Tick(0.5s)
+            }
+
+            Expire
+        }
+
+        // Wait to play again
+        let elapsed = Tick - beginning
+        for use owner in QueryPlayers {
+            ElapsedDurationNegated(overwrite=-elapsed, showOnLeaderboard=true)
+        }
+        await Spawn {
+            Modal {
+                VStack(align=Align:Center) {
+                    Standout(animate=Animate:FlyFromTop) { "Victory!" }
+                    P {
+                        "You took: "
+                        Span(bold=true) { %(Round(elapsed / 1s) + " seconds") }
+                    }
+                    HStack(align=Align:Center) {
+                        RaisedButton(PressIntent<playAgain>, backgroundColor=Color:Primary) { "Play Again" }
+                        RaisedButton(HomePage, backgroundColor=Color:Secondary) { "High Scores" }
+                    }
+                }
+            }
+
+            await Pressed<playAgain>
+            Expire
+        }
+        
+        // Clear the board
+        for dice in Query(filter=Category:Dice) {
+            dice.Expire
+        }
+    }
+}

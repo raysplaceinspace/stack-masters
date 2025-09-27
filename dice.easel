@@ -1,0 +1,57 @@
+pub prop dice.DiceNumber
+
+pub collect World.AllDice
+
+const DiceColorLookup = {
+    1 = #f88,
+    2 = #ff8,
+    3 = #8f8,
+    4 = #8ff,
+    5 = #88f,
+    6 = #f8f,
+}
+
+const DiceDotsLookup = {
+    1 = @dots1.svg,
+    2 = @dots2.svg,
+    3 = @dots3.svg,
+    4 = @dots4.svg,
+    5 = @dots5.svg,
+    6 = @dots6.svg,
+}
+
+pub fn dice.Dice(pos, diceNumber) {
+    use body=dice
+    use radius=1, shape=Equilateral(numPoints=4, angle=0.125rev)
+    
+    DiceNumber = diceNumber
+    use color=DiceColorLookup[DiceNumber].Darken(0.25*Random)
+
+    Body(pos=, heading=Random*1rev)
+    PolygonCollider(category=Category:Dice, friction=0.2)
+    ImageSprite(@dice.svg, shading=0.5, shadow=0.25, color=)
+    ImageSprite(DiceDotsLookup[DiceNumber], color=#fff)
+
+    once BeforeDespawn {
+        Spark
+    }
+}
+
+pub fn CheckAreDiceOrdered() -> boolean {
+    const MinElevation = 0.25
+    let tops = []
+    let bottoms = []
+
+    for dice in AllDice {
+        let y = dice.Pos.Y
+        let diceNumber = dice.DiceNumber
+        tops[diceNumber] = tops[diceNumber].Min(y)
+        bottoms[diceNumber] = bottoms[diceNumber].Max(y)
+    }
+
+    for diceNumber in RangeInclusive(1, 5) {
+        if bottoms[diceNumber] > tops[diceNumber+1] - MinElevation { return false }
+    }
+
+    return true
+}

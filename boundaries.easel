@@ -1,0 +1,13 @@
+pub fn boundary.Boundary(pos, heading, width=1000, height=10) {
+    use body=boundary
+    use color=#326
+    use shape=Rectangle(width=, height=)
+
+    Body(
+        pos=,
+        heading=,
+        immovable=true, noRotation=true,
+    )
+    PolygonCollider(category=Category:Boundary)
+    PolygonSprite
+}

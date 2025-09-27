@@ -1,0 +1,73 @@
+prop World.FetchedLeaderboard
+
+pub page fn owner.HomePage {
+    Content {
+        Panel {
+            HStack {
+                H1(margin=0) { %(ProjectName) }
+                Blank(expand=true)
+                RaisedButton(Main, backgroundColor=Color:Primary, width=20, fontSize=1.5) { "Play" }
+            }
+        }
+        
+        if ElapsedDurationNegated {
+            if IsUserLoggedIn {
+                InsetPanel {
+                    HStack {
+                        "Choose your name: "
+                        Blank(expand=true)
+                        VStack(width=20) {
+                            PlayerNameEditor
+                        }
+                    }
+                }
+            } else {
+                InsetPanel {
+                    P {
+                        "Would you like to appear on the leaderboard? Please "
+                        Link(LoginIntent) { "login" }
+                        ". "
+                    }
+                }
+            }
+        }
+        
+        H2 { "Leaderboard" }
+        with FetchedLeaderboard {
+            if FetchedLeaderboard {
+                let rank = 1
+                for player in FetchedLeaderboard %%{
+                    ShinyPanel(backgroundColor=#0fb, vPadding=0.4) {
+                        HStack {
+                            P(fontSize=0.75, color=#eee, width=1.5, align=Align:Center) {
+                                %(rank)
+                            }
+                            P(fontSize=1.2, bold=true) {
+                                PlayerNameDisplay(player)
+                            }
+        
+                            Blank(expand=true)
+        
+                            P {
+                                %(Round(-player.ElapsedDurationNegated / 1s))
+                                " seconds"
+                            }
+                        }
+                    }
+        
+                    rank += 1
+                }
+        
+                if FetchedLeaderboard.IsEmpty {
+                    P { "No one on the leaderboard... yet" }
+                }
+            } else {
+                P { "Loading..." }
+            }
+        }
+    }
+
+    with PlayerName {
+        FetchedLeaderboard = await FetchLeaderboard(&ElapsedDurationNegated)
+    }
+}
