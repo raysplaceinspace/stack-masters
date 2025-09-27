@@ -127,12 +127,16 @@ await fn owner.SpawnNDice(diceNumbers, perNumber, spawnInterval=0.1s) {
 await fn owner.GameOverDialog(elapsed) {
     await Subspawn {
         Modal {
-            VStack(align=Align:Center) {
-                Standout(animate=Animate:FlyFromTop) { "Game over!" }
+            VStack(align=Align:Center, gap=1) {
+                Standout {
+                    FlyInWords("Game over!")
+                }
+                
                 P {
                     "You lasted: "
                     Span(bold=true) { %(Round(elapsed / 1s) + " seconds") }
                 }
+                
                 HStack(align=Align:Center) {
                     RaisedButton(PressIntent<playAgain>, backgroundColor=Color:Primary) { "Play Again" }
                     RaisedButton(HomePage, backgroundColor=Color:Secondary) { "High Scores" }
