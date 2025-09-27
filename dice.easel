@@ -1,6 +1,6 @@
 pub prop dice.DiceNumber
 
-pub collect World.AllDice
+pub collect round.AllDice
 pub collect World.DiceTouchingFloor
 
 const DiceColorLookup = {
@@ -67,7 +67,7 @@ pub fn this.DiceDismantler(numDiceInRow) |color| {
     }
 }
 
-pub fn owner.DiceManipulator {
+pub fn this.DiceManipulator([owner]) {
     on ButtonDown(Click) {
         use dice = Pointer.QueryNearest(filter=Category:Dice)
         use body=dice
@@ -89,4 +89,33 @@ pub fn owner.DiceManipulator {
             Velocity = Velocity.Truncate(50)
         }
     }
+}
+
+pub await fn round.SpawnNDice(diceNumbers, perNumber, spawnInterval=0.1s) {
+    let remaining = []
+    for diceNumber in diceNumbers {
+        repeat perNumber {
+            remaining.Push(diceNumber)
+        }
+    }
+    Shuffle(remaining)
+
+    while !remaining.IsEmpty {
+        let diceNumber = remaining.Pop
+        
+        Spawn dice {
+            Dice(pos=@(1 * SignedRandom, -20), diceNumber=)
+            give AllDice(dice)
+        }
+
+        await Tick(spawnInterval)
+    }
+}
+
+pub fn round.HasEnoughMatchingDice(minMatching) -> boolean {
+    let counts = {}
+    for use dice in AllDice {
+        counts[DiceNumber] += 1
+    }
+    return counts.Any(|v| v >= minMatching)
 }
