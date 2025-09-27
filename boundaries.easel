@@ -1,8 +1,9 @@
 pub field boundary.BoundaryIsFloor
 
+pub prop World.BoundaryColor = #326
+
 pub fn boundary.Boundary(pos, heading, width=1000, height=10, isFloor?) {
     use body=boundary
-    use color=#326
     use shape=Rectangle(width=, height=)
 
     BoundaryIsFloor = isFloor
@@ -13,5 +14,8 @@ pub fn boundary.Boundary(pos, heading, width=1000, height=10, isFloor?) {
         immovable=true, noRotation=true,
     )
     PolygonCollider(category=Category:Boundary)
-    PolygonSprite
+
+    with BoundaryColor {
+        PolygonSprite(color=BoundaryColor)
+    }
 }

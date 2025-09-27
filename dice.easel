@@ -29,7 +29,7 @@ pub fn dice.Dice(pos, diceNumber) {
     use color=DiceColorLookup[DiceNumber].Darken(0.25*Random)
 
     Body(pos=, heading=Random*1rev)
-    PolygonCollider(category=Category:Dice, friction=0.05)
+    PolygonCollider(category=Category:Dice, friction=0.1)
     ImageSprite(@dice.svg, shading=0.5, shadow=0.25, color=)
     ImageSprite(DiceDotsLookup[DiceNumber], color=#fff)
 
@@ -51,7 +51,7 @@ pub fn dice.Dice(pos, diceNumber) {
     }
 }
 
-pub fn this.DiceDismantler(numDiceInRow) {
+pub fn this.DiceDismantler(numDiceInRow) |color| {
     with DiceTouchingFloor {
         if DiceTouchingFloor.Length >= numDiceInRow {
             use diceNumber = DiceTouchingFloor[0].DiceNumber
@@ -60,6 +60,8 @@ pub fn this.DiceDismantler(numDiceInRow) {
                 for dice in DiceTouchingFloor {
                     dice.Expire
                 }
+
+                delve(color=DiceColorLookup[diceNumber])
             }
         }
     }

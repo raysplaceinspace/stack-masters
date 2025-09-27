@@ -1,5 +1,3 @@
-pub accumulator owner.HighestElapsedDuration = 0
-
 pub game fn World.Main() {
     Gravity = 30
 
@@ -19,11 +17,15 @@ pub game fn World.Main() {
     Spawn boundary {
         Boundary(height=100, pos=@(5 + height/2, 0), heading=0.25rev)
     }
-
-    DiceDismantler(numDiceInRow=5)
     
     SpawnEachPlayer owner {
         DiceManipulator
+        DiceDismantler(numDiceInRow=5) color {
+            let h, s, l = color.HSL
+            BoundaryColor = HSL(h, 0.33*s, 0.33*l)
+
+            PlayerLevel += 1
+        }
 
         await PlayTutorial
 
@@ -65,35 +67,34 @@ await fn owner.PlayOneRound() -> elapsed {
     let started = Tick
     
     await Subspawn {
+        PlayerLevel = 1
+
+        LevelDisplayer
+        
         BottomContent {
             VStack(padding=1) {
                 with Tick(1s) {
                     let totalSeconds = Floor((Tick - started) / 1s)
-                    if totalSeconds < 10 {
-                        "Let's see how long you can last!"
-                    } else {
-                        H3 {
-                            let seconds = totalSeconds % 1m
-                            let minutes = Floor(totalSeconds / 1m)
-                            %(minutes + (seconds < 10 ? ":0" : ":") + seconds)
-                        }
+                    H3 {
+                        let seconds = totalSeconds % 60
+                        let minutes = Floor(totalSeconds / 60)
+                        %(minutes + (seconds < 10 ? ":0" : ":") + seconds)
                     }
                 }
             }
         }
 
-        await SpawnNDice(diceNumbers=[4,5,6], perNumber=5)
+        await SpawnNDice(diceNumbers=[1,2,3], perNumber=5)
 
-        on Tick(10s) {
-            await SpawnNDice(diceNumbers=[1,2], perNumber=5)
-            await Tick(10s)
-            await SpawnNDice(diceNumbers=[3,4], perNumber=5)
-            await Tick(10s)
-            await SpawnNDice(diceNumbers=[5,6], perNumber=5)
+        on Tick {
+            use spawnInterval = 3s * 0.95 ** PlayerLevel
+            await SpawnNDice(diceNumbers=[4,5], perNumber=5, spawnInterval=)
+            await SpawnNDice(diceNumbers=[6,1], perNumber=5, spawnInterval=)
+            await SpawnNDice(diceNumbers=[2,3], perNumber=5, spawnInterval=)
         }
 
         // Too many dice? Game over
-        while AllDice.Length < 60 {
+        while AllDice.Length < 40 {
             await AllDice
         }
         
@@ -126,7 +127,7 @@ await fn owner.SpawnNDice(diceNumbers, perNumber, spawnInterval=0.1s) {
 
 await fn owner.GameOverDialog(elapsed) {
     await Subspawn {
-        Modal {
+        OverlayContent {
             VStack(align=Align:Center, gap=1) {
                 Standout {
                     FlyInWords("Game over!")
@@ -136,8 +137,10 @@ await fn owner.GameOverDialog(elapsed) {
                     "You lasted: "
                     Span(bold=true) { %(Round(elapsed / 1s) + " seconds") }
                 }
+
+                await Tick(3s)
                 
-                HStack(align=Align:Center) {
+                HStack(align=Align:Center, animate=Animate:FlyFromBottom) {
                     RaisedButton(PressIntent<playAgain>, backgroundColor=Color:Primary) { "Play Again" }
                     RaisedButton(HomePage, backgroundColor=Color:Secondary) { "High Scores" }
                 }

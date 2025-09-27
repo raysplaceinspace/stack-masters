@@ -1,0 +1,37 @@
+pub accumulator owner.HighestElapsedDuration = 0
+
+pub prop owner.PlayerLevel = 1
+
+const LevelMsg = [
+    null, // Level 0 won't ever be displayed
+    "Let's see how long you can last!",
+    "Level 2. Seems beginner's luck is on your side!",
+    "Level 3! Unexpected.",
+    "Level 4. Bet you won't make it to the next level!",
+    "Level 5. Let's make things a bit harder for you.",
+    "Level 6. I can't wait to watch you fail.",
+    "Level 7. It won't be long until you're out.",
+    "Level 8. Surprising.",
+    "Level 9. You'll never make it to double digits!",
+    "Level 10. How are you doing this???",
+    "Level 11. I don't think you're capable of any more.",
+    "Level 12. Go on, make your parents proud.",
+    "Level 13. Don't worry, it'll be over soon!",
+    "Level 14. Astounding.",
+    "Level 15. I never thought you'd make it this far.",
+    "Level 16. It cannot be!",
+    "Level 17. Humans always give up.",
+    "Level 18. Surely you have reached your limit!",
+    "Level 19. You'll never reach level 20!",
+    "Level 20. This can't be!",
+]
+
+pub fn this.LevelDisplayer([owner]) {
+    BottomContent {
+        VStack(padding=1) {
+            with PlayerLevel {
+                %(LevelMsg[PlayerLevel] ?? "Level " + PlayerLevel + ". What???")
+            }
+        }
+    }
+} 
