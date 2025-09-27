@@ -1,6 +1,7 @@
 pub prop dice.DiceNumber
 
 pub collect World.AllDice
+pub collect World.DiceTouchingFloor
 
 const DiceColorLookup = {
     1 = #f88,
@@ -28,30 +29,62 @@ pub fn dice.Dice(pos, diceNumber) {
     use color=DiceColorLookup[DiceNumber].Darken(0.25*Random)
 
     Body(pos=, heading=Random*1rev)
-    PolygonCollider(category=Category:Dice, friction=0.2)
+    PolygonCollider(category=Category:Dice, friction=0.05)
     ImageSprite(@dice.svg, shading=0.5, shadow=0.25, color=)
     ImageSprite(DiceDotsLookup[DiceNumber], color=#fff)
 
+    on BeforeCollide that {
+        if that.BoundaryIsFloor {
+            give<touchingFloor> DiceTouchingFloor(dice)
+        }
+    }
+    on AfterCollide that {
+        if that.BoundaryIsFloor {
+            delete give<touchingFloor>
+        }
+    }
+
     once BeforeDespawn {
-        Spark
+        repeat 2 {
+            Spark(luminous=1, shine=0.5, bloom=3, bloomAlpha=1, speed=10, dissipate=0.25s)
+        }
     }
 }
 
-pub fn CheckAreDiceOrdered() -> boolean {
-    const MinElevation = 0.25
-    let tops = []
-    let bottoms = []
-
-    for dice in AllDice {
-        let y = dice.Pos.Y
-        let diceNumber = dice.DiceNumber
-        tops[diceNumber] = tops[diceNumber].Min(y)
-        bottoms[diceNumber] = bottoms[diceNumber].Max(y)
+pub fn this.DiceDismantler(numDiceInRow) {
+    with DiceTouchingFloor {
+        if DiceTouchingFloor.Length >= numDiceInRow {
+            use diceNumber = DiceTouchingFloor[0].DiceNumber
+            if DiceTouchingFloor.All(|dice| dice.DiceNumber == diceNumber) {
+                // All are the same number, so we have a whole row
+                for dice in DiceTouchingFloor {
+                    dice.Expire
+                }
+            }
+        }
     }
+}
 
-    for diceNumber in RangeInclusive(1, 5) {
-        if bottoms[diceNumber] > tops[diceNumber+1] - MinElevation { return false }
+pub fn owner.DiceManipulator {
+    on ButtonDown(Click) {
+        use dice = Pointer.QueryNearest(filter=Category:Dice)
+        use body=dice
+        behavior<dragDice> on BeforePhysics {
+            if !dice.Exists { break }
+            let posDelta = Pointer - (Pos + 2 * Velocity / 1s)
+            
+            let targetVelocity = posDelta * 1s
+            let velocityDelta = (targetVelocity - Velocity).Truncate(100)
+
+            ApplyImpulse(0.25 * velocityDelta * Mass)
+            dice.Strobe(shine=0.25)
+        }
+
+        await ButtonUp(Click)
+        delete behavior<dragDice>
+
+        if dice.Exists {
+            Velocity = Velocity.Truncate(50)
+        }
     }
-
-    return true
 }

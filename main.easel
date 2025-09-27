@@ -1,4 +1,4 @@
-pub accumulator owner.ElapsedDurationNegated // negative because database sorts from highest to lowest
+pub accumulator owner.HighestElapsedDuration = 0
 
 pub game fn World.Main() {
     Gravity = 30
@@ -6,12 +6,12 @@ pub game fn World.Main() {
     ButtonRemap(Tap, Click)
 
     SolidBackground(#181818)
-    Camera(@(0,0), radius=25)
+    Camera(@(0,0), radius=15)
     Spawn boundary {
-        Boundary(height=100, pos=@(0, 20 + height/2), heading=0)
+        Boundary(height=100, pos=@(0, 10 + height/2), heading=0, isFloor=true)
     }
     Spawn boundary {
-        Boundary(height=100, pos=@(0, -30 - height/2), heading=0.5rev)
+        Boundary(height=100, pos=@(0, -50 - height/2), heading=0.5rev)
     }
     Spawn boundary {
         Boundary(height=100, pos=@(-5 - height/2, 0), heading=-0.25rev)
@@ -19,110 +19,128 @@ pub game fn World.Main() {
     Spawn boundary {
         Boundary(height=100, pos=@(5 + height/2, 0), heading=0.25rev)
     }
+
+    DiceDismantler(numDiceInRow=5)
     
     SpawnEachPlayer owner {
-        on ButtonDown(Click) {
-            use dice = Pointer.QueryNearest(filter=Category:Dice)
-            use body=dice
-            behavior<dragDice> on BeforePhysics {
-                if !dice.Exists { break }
-                let posDelta = Pointer - (Pos + 2 * Velocity / 1s)
-                
-                let targetVelocity = posDelta * 1s
-                let velocityDelta = (targetVelocity - Velocity).Truncate(100)
+        DiceManipulator
 
-                ApplyImpulse(0.25 * velocityDelta * Mass)
-                dice.Strobe(shine=0.25)
+        await PlayTutorial
+
+        loop {
+            let elapsed = await PlayOneRound
+            if elapsed > HighestElapsedDuration {
+                HighestElapsedDuration(overwrite=elapsed, showOnLeaderboard=true)
             }
-
-            await ButtonUp(Click)
-            delete behavior<dragDice>
-
-            if dice.Exists {
-                Velocity = Velocity.Truncate(50)
+            await GameOverDialog(elapsed=)
+            
+            // Clear board before next game
+            for dice in AllDice {
+                dice.Expire
             }
         }
     }
+}
 
-    // Main game loop
-    on Tick {
-        let beginning = Tick
-        await Spawn {
-            const NumDicePerNumber = 5
-    
-            Content {
-                Panel(maxWidth=15) {
-                    H3 { "Sort the dice!" }
-                    P { 
-                        "Stack the smaller numbers on top of the bigger numbers."
-                    }
-                    P { "How fast can you do it?" }
-                }
-            }
+await fn owner.PlayTutorial {
+    await Subspawn {
+        await SpawnNDice(diceNumbers=[5], perNumber=1)
+        await SpawnNDice(diceNumbers=[6], perNumber=5)
         
-            TopContent {
+        BottomContent {
+            VStack(padding=1) {
+                "Place 5 matching dice along the bottom row"
+            }
+        }
+    
+        while AllDice.Length > 1 {
+            await AllDice
+        }
+        
+        Expire
+    }
+}
+
+await fn owner.PlayOneRound() -> elapsed {
+    let started = Tick
+    
+    await Subspawn {
+        BottomContent {
+            VStack(padding=1) {
                 with Tick(1s) {
-                    H3 {
-                        "Elapsed: " + Floor((Tick - beginning) / 1s) + "s"
+                    let totalSeconds = Floor((Tick - started) / 1s)
+                    if totalSeconds < 10 {
+                        "Let's see how long you can last!"
+                    } else {
+                        H3 {
+                            let seconds = totalSeconds % 1m
+                            let minutes = Floor(totalSeconds / 1m)
+                            %(minutes + (seconds < 10 ? ":0" : ":") + seconds)
+                        }
                     }
                 }
             }
-            
-            // Spawn all dice
-            let remaining = []
-            for diceNumber in RangeInclusive(1, 6) {
-                repeat NumDicePerNumber {
-                    remaining.Push(diceNumber)
-                }
-            }
-            Shuffle(remaining)
-    
-            while !remaining.IsEmpty {
-                let diceNumber = remaining.Pop
-                
-                Spawn dice {
-                    Dice(pos=@(1 * SignedRandom, -25), diceNumber=)
-                    give AllDice(dice)
-                }
-    
-                await Tick(0.1s)
-            }
-    
-            // Wait for win condition
-            while !CheckAreDiceOrdered {
-                await Tick(0.5s)
-            }
-
-            Expire
         }
 
-        // Wait to play again
-        let elapsed = Tick - beginning
-        for use owner in QueryPlayers {
-            ElapsedDurationNegated(overwrite=-elapsed, showOnLeaderboard=true)
-        }
-        await Spawn {
-            Modal {
-                VStack(align=Align:Center) {
-                    Standout(animate=Animate:FlyFromTop) { "Victory!" }
-                    P {
-                        "You took: "
-                        Span(bold=true) { %(Round(elapsed / 1s) + " seconds") }
-                    }
-                    HStack(align=Align:Center) {
-                        RaisedButton(PressIntent<playAgain>, backgroundColor=Color:Primary) { "Play Again" }
-                        RaisedButton(HomePage, backgroundColor=Color:Secondary) { "High Scores" }
-                    }
-                }
-            }
+        await SpawnNDice(diceNumbers=[4,5,6], perNumber=5)
 
-            await Pressed<playAgain>
-            Expire
+        on Tick(10s) {
+            await SpawnNDice(diceNumbers=[1,2], perNumber=5)
+            await Tick(10s)
+            await SpawnNDice(diceNumbers=[3,4], perNumber=5)
+            await Tick(10s)
+            await SpawnNDice(diceNumbers=[5,6], perNumber=5)
+        }
+
+        // Too many dice? Game over
+        while AllDice.Length < 60 {
+            await AllDice
         }
         
-        // Clear the board
-        for dice in Query(filter=Category:Dice) {
-            dice.Expire
+        Expire
+    }
+
+    return Tick - started
+}
+
+await fn owner.SpawnNDice(diceNumbers, perNumber, spawnInterval=0.1s) {
+    let remaining = []
+    for diceNumber in diceNumbers {
+        repeat perNumber {
+            remaining.Push(diceNumber)
         }
+    }
+    Shuffle(remaining)
+
+    while !remaining.IsEmpty {
+        let diceNumber = remaining.Pop
+        
+        Spawn dice {
+            Dice(pos=@(1 * SignedRandom, -20), diceNumber=)
+            give AllDice(dice)
+        }
+
+        await Tick(spawnInterval)
+    }
+}
+
+await fn owner.GameOverDialog(elapsed) {
+    await Subspawn {
+        Modal {
+            VStack(align=Align:Center) {
+                Standout(animate=Animate:FlyFromTop) { "Game over!" }
+                P {
+                    "You lasted: "
+                    Span(bold=true) { %(Round(elapsed / 1s) + " seconds") }
+                }
+                HStack(align=Align:Center) {
+                    RaisedButton(PressIntent<playAgain>, backgroundColor=Color:Primary) { "Play Again" }
+                    RaisedButton(HomePage, backgroundColor=Color:Secondary) { "High Scores" }
+                }
+            }
+        }
+
+        await Pressed<playAgain>
+        Expire
     }
 }
