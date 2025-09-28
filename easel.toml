@@ -1,6 +1,6 @@
 [project]
-name = "Dice Stackers!"
-domain = "easel.games/@raysplaceinspace/dice-stackers"
+name = "Stack Masters!"
+domain = "easel.games/@raysplaceinspace/stack-masters"
 
 [authors]
 "u1z.DHAVSGw" = "raysplaceinspace"
