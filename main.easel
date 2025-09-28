@@ -5,9 +5,9 @@ pub game fn World.Main() {
     ButtonRemap(Tap, Click)
 
     SolidBackground(#181818)
-    Camera(@(0,0), radius=15)
+    Camera(@(0,0), radius=10)
     Spawn boundary {
-        Boundary(height=100, pos=@(0, 10 + height/2), heading=0, isFloor=true)
+        Boundary(height=100, pos=@(0, 9 + height/2), heading=0, isFloor=true)
     }
     Spawn boundary {
         Boundary(height=100, pos=@(0, -50 - height/2), heading=0.5rev)

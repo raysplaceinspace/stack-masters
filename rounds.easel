@@ -73,11 +73,11 @@ pub await fn owner.PlayOneRound() -> elapsed {
         DiceManipulator
         LevelDisplayer
         
-        BottomContent {
+        TopContent {
             VStack(padding=1) {
                 with Tick(1s) {
                     let totalSeconds = Floor((Tick - started) / 1s)
-                    H3 {
+                    H1 {
                         let seconds = totalSeconds % 60
                         let minutes = Floor(totalSeconds / 60)
                         %(minutes + (seconds < 10 ? ":0" : ":") + seconds)
@@ -105,7 +105,7 @@ pub await fn owner.PlayOneRound() -> elapsed {
         }
 
         // Too many dice? Game over
-        while AllDice.Length < 50 {
+        while AllDice.Length < 40 {
             await AllDice
         }
 
