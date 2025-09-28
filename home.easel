@@ -1,12 +1,12 @@
 prop World.FetchedLeaderboard
 
-pub page fn owner.HomePage {
+pub page fn owner.HomePage {    
     Content {
         Panel {
             HStack {
                 VStack {
                     H1(margin=0) { %(ProjectName) }
-                    P { "Do you stack or do you lack?" }
+                    P { "Do you lack or do you stack?" }
                 }
                 Blank(expand=true)
                 RaisedButton(Main, backgroundColor=Color:Primary, width=20, fontSize=2) { "Play" }

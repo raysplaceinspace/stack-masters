@@ -21,6 +21,10 @@ pub game fn World.Main() {
 
     Ears(@(0, 10)) // Ears at bottom
     
+    Toolbar {
+        VolumeToggle
+    }
+    
     SpawnEachPlayer owner {
         DiceDismantler(numDiceInRow=5) color {
             let h, s, l = color.HSL
