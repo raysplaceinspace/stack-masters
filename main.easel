@@ -1,6 +1,7 @@
 pub game fn World.Main() {
     Gravity = 30
 
+    Music(@stackMasters2.mp3, loop=true)
     ButtonRemap(Tap, Click)
 
     SolidBackground(#181818)
