@@ -4,7 +4,7 @@ pub prop owner.PlayerLevel = 1
 
 const LevelMsg = [
     null, // Level 0 won't ever be displayed
-    "Let's see how long you can last!",
+    "Keep going. Let's see how long you can last!",
     "Level 2. Seems beginner's luck is on your side!",
     "Level 3! Unexpected.",
     "Level 4. Bet you won't make it to the next level!",

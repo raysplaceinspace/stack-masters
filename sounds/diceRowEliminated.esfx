@@ -1,0 +1,8 @@
+Play(duration=0.75s) {
+	Vibrato(freqModulation=450) {
+		WhiteNoise
+	}
+	Oscillator(freq=40)
+	LowPass(freq=[450,0], q=1)
+	Envelope(attack=0.003s, decay=0.05s, decayTo=0.1)
+}

@@ -1,0 +1,14 @@
+Play(duration=0.3s) {
+    BrownNoise
+    BandPass(freq=[260,75])
+    Envelope(attack=0.01s, decayTo=0.1, decay=0.01s)
+}
+
+Play(duration=0.1s) {
+    Vibrato(freqModulation=1500) {
+        WhiteNoise
+    }
+    Oscillator(wave=$square, freq=2100)
+    LowPass(freq=[1050,40])
+    Envelope(attack=0.003s, decayTo=0.1, decay=0.003s)
+}

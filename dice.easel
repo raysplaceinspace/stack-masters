@@ -1,5 +1,8 @@
 pub prop dice.DiceNumber
 
+const DiceNoiseInterval = 0.5s
+field dice.DiceSilentUntil = 0
+
 pub collect round.AllDice
 pub collect World.DiceTouchingFloor
 
@@ -28,18 +31,27 @@ pub fn dice.Dice(pos, diceNumber) {
     DiceNumber = diceNumber
     use color=DiceColorLookup[DiceNumber].Darken(0.25*Random)
 
+    DiceSilentUntil = Tick + 0.1s // No sound when spawning
+
     Body(pos=, heading=Random*1rev)
     PolygonCollider(category=Category:Dice, friction=0.1)
     ImageSprite(@dice.svg, shading=0.5, shadow=0.25, color=)
     ImageSprite(DiceDotsLookup[DiceNumber], color=#fff)
 
     on BeforeCollide that {
-        if that.BoundaryIsFloor {
-            give<touchingFloor> DiceTouchingFloor(dice)
+        if that.Category.Overlaps(Category:Dice) {
+            if Speed > that.Speed && Tick > DiceSilentUntil && Tick > that.DiceSilentUntil {
+                DiceSilentUntil = that.DiceSilentUntil = Tick + DiceNoiseInterval
+                Hear(PickRandom(@diceHitDice*.esfx), volume=(Speed / 10).Clamp(0,1))
+            }
+        } else if that.Category.Overlaps(Category:Boundary) {
+            if that.BoundaryIsFloor {
+                give<touchingFloor> DiceTouchingFloor(dice)
+            }
         }
     }
     on AfterCollide that {
-        if that.BoundaryIsFloor {
+        if that.Category.Overlaps(Category:Boundary) && that.BoundaryIsFloor {
             delete give<touchingFloor>
         }
     }
@@ -56,6 +68,7 @@ pub fn this.DiceDismantler(numDiceInRow) |color| {
         if DiceTouchingFloor.Length >= numDiceInRow {
             use diceNumber = DiceTouchingFloor[0].DiceNumber
             if DiceTouchingFloor.All(|dice| dice.DiceNumber == diceNumber) {
+                Hear(@diceRowEliminated.esfx)
                 // All are the same number, so we have a whole row
                 for dice in DiceTouchingFloor {
                     dice.Expire

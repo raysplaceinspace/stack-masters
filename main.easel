@@ -17,6 +17,8 @@ pub game fn World.Main() {
     Spawn boundary {
         Boundary(height=100, pos=@(5 + height/2, 0), heading=0.25rev)
     }
+
+    Ears(@(0, 10)) // Ears at bottom
     
     SpawnEachPlayer owner {
         DiceDismantler(numDiceInRow=5) color {
