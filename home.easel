@@ -1,6 +1,12 @@
 prop World.FetchedLeaderboard
 
 pub page fn owner.HomePage {    
+    Music(@stackMastersTheme.mp3, loop=true)
+
+    Toolbar {
+        VolumeToggle
+    }
+    
     Content {
         Panel {
             HStack {
