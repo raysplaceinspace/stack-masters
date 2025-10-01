@@ -19,24 +19,12 @@ pub page fn owner.HomePage {
             }
         }
         
-        if HighestElapsedDuration {
-            if IsUserLoggedIn {
-                InsetPanel {
-                    HStack {
-                        "Choose your name: "
-                        Blank(expand=true)
-                        VStack(width=20) {
-                            PlayerNameEditor
-                        }
-                    }
-                }
-            } else {
-                InsetPanel {
-                    P {
-                        "Would you like to appear on the leaderboard? Please "
-                        Link(LoginIntent) { "login" }
-                        ". "
-                    }
+        InsetPanel {
+            HStack {
+                "Choose your name: "
+                Blank(expand=true)
+                VStack(width=20) {
+                    PlayerNameEditor
                 }
             }
         }
