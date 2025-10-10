@@ -65,7 +65,7 @@ pub await fn owner.PlayTutorial {
 }
 
 pub await fn owner.PlayOneRound() -> elapsed {
-    let started = Tick
+    let duration = 0s
     
     await Subspawn round {
         PlayerLevel = 1
@@ -76,7 +76,7 @@ pub await fn owner.PlayOneRound() -> elapsed {
         TopContent {
             VStack(padding=1) {
                 with Tick(1s) {
-                    let totalSeconds = Floor((Tick - started) / 1s)
+                    let totalSeconds = Floor(duration / 1s)
                     H1 {
                         let seconds = totalSeconds % 60
                         let minutes = Floor(totalSeconds / 60)
@@ -84,6 +84,12 @@ pub await fn owner.PlayOneRound() -> elapsed {
                     }
                 }
             }
+        }
+
+        on Tick {
+            // We count the ticks manually to avoid the exploit where players
+            // would put their computer to sleep while the clock was ticking up
+            duration += 1
         }
 
         await SpawnNDice(diceNumbers=[1,2,3], perNumber=5)
@@ -122,7 +128,7 @@ pub await fn owner.PlayOneRound() -> elapsed {
         Expire
     }
 
-    return Tick - started
+    return duration
 }
 
 pub await fn owner.GameOverDialog(elapsed) {
