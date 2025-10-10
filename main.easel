@@ -37,8 +37,8 @@ pub game fn World.Main() {
 
         loop {
             let elapsed = await PlayOneRound
-            SubmitHighScore(elapsed)
-            await GameOverDialog(elapsed=)
+            let isNewHighScore = SubmitHighScore(elapsed)
+            await GameOverDialog(elapsed=, isNewHighScore=)
             
             // Clear board before next game
             for dice in Query(filter=Category:Dice) {

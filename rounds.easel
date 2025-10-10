@@ -36,9 +36,12 @@ pub fn this.LevelDisplayer([owner]) {
     }
 }
 
-pub fn owner.SubmitHighScore(elapsed) {
+pub fn owner.SubmitHighScore(elapsed) -> isNewHighScore {
     if elapsed > HighestElapsedDuration {
         HighestElapsedDuration(overwrite=elapsed, showOnLeaderboard=true)
+        return true
+    } else {
+        return false
     }
 }
 
@@ -131,7 +134,7 @@ pub await fn owner.PlayOneRound() -> elapsed {
     return duration
 }
 
-pub await fn owner.GameOverDialog(elapsed) {
+pub await fn owner.GameOverDialog(elapsed, isNewHighScore) {
     await Subspawn {
         OverlayContent {
             VStack(align=Align:Center, gap=1) {
@@ -148,6 +151,11 @@ pub await fn owner.GameOverDialog(elapsed) {
                     Span(bold=true) { %(Round(elapsed / 1s) + " seconds") }
                 }
 
+                if isNewHighScore {
+                    P(color=#e580ff, bold=true) {
+                        "New high score!"
+                    }
+                }
                 await Tick(3s)
                 
                 HStack(align=Align:Center, animate=Animate:FlyFromBottom) {
