@@ -6,6 +6,14 @@ pub page fn owner.HomePage {
     Toolbar {
         VolumeToggle
     }
+
+    ToolbarRight {
+        if IsUserLoggedIn {
+            FlatButton(ManageAccountIntent, backgroundColor=#fff1) { %(PlayerName) }
+        } else {
+            FlatButton(LoginIntent, backgroundColor=Color:Primary) { "Login" }
+        }
+    }
     
     Content {
         Panel {
@@ -36,6 +44,18 @@ pub page fn owner.HomePage {
         }
         
         H2 { "Leaderboard" }
+
+        if !IsUserLoggedIn && HighestElapsedDuration > 0 {
+            ShinyPanel(align=Align:Center, vPadding=0.5, backgroundColor=#f60) {
+                P(fontSize=0.8) {
+                    Icon("fa-solid fa-triangle-exclamation")
+                    " You are not logged in. Unregistered high scores get deleted after 90 days. To keep your score forever, you need to "
+                    Link(LoginIntent) { "login" }
+                    "."
+                }
+            }
+        }
+
         with FetchedLeaderboard {
             if FetchedLeaderboard {
                 let rank = 1
