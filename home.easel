@@ -1,5 +1,7 @@
 prop World.FetchedLeaderboard
 
+pub preference owner.HasPlayedBefore
+
 pub page fn owner.HomePage {    
     Music(@stackMastersTheme.mp3, loop=true)
 
@@ -23,7 +25,7 @@ pub page fn owner.HomePage {
                     P { "Do you lack or do you stack?" }
                 }
                 Blank(expand=true)
-                RaisedButton(Main, backgroundColor=Color:Primary, width=20, fontSize=2) { "Play" }
+                RaisedButton(Main, autoClick=!HasPlayedBefore, backgroundColor=Color:Primary, width=20, fontSize=2) { "Play" }
             }
         }
         
@@ -56,17 +58,18 @@ pub page fn owner.HomePage {
             }
         }
 
-        with FetchedLeaderboard {
+        with FetchedLeaderboard, PlayerName {
             if FetchedLeaderboard {
                 let rank = 1
                 for player in FetchedLeaderboard %%{
-                    ShinyPanel(backgroundColor=#0fb, vPadding=0.4) {
+                    let isMe = player.UserId == owner.UserId
+                    ShinyPanel(backgroundColor=isMe ? #fc0 : #0fb, vPadding=0.4) {
                         HStack {
                             P(fontSize=0.75, color=#eee, width=1.5, align=Align:Center) {
                                 %(rank)
                             }
-                            P(fontSize=1.2, bold=true) {
-                                PlayerNameDisplay(player)
+                            P(fontSize=isMe ? 1.5 : 1.2, bold=true) {
+                                PlayerNameDisplay(isMe ? owner : player, color=#fff)
                             }
         
                             Blank(expand=true)
@@ -90,7 +93,5 @@ pub page fn owner.HomePage {
         }
     }
 
-    with PlayerName {
-        FetchedLeaderboard = await FetchLeaderboard(&HighestElapsedDuration)
-    }
+    FetchedLeaderboard = await FetchLeaderboard(&HighestElapsedDuration)
 }

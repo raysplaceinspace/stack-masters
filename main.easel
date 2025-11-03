@@ -27,6 +27,8 @@ pub game fn World.Main() {
     }
     
     SpawnEachPlayer owner {
+        HasPlayedBefore = true
+        
         DiceDismantler(numDiceInRow=5) color {
             let h, s, l = color.HSL
             BoundaryColor = HSL(h, 0.33*s, 0.33*l)
