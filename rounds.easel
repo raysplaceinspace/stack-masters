@@ -29,8 +29,10 @@ const LevelMsg = [
 pub fn this.LevelDisplayer([owner]) {
     BottomContent {
         VStack(padding=1) {
-            with PlayerLevel {
-                %(LevelMsg[PlayerLevel] ?? "Level " + PlayerLevel + ". What???")
+            P(fontSize=1.2) {
+                with PlayerLevel {
+                    %(LevelMsg[PlayerLevel] ?? "Level " + PlayerLevel + ". What???")
+                }
             }
         }
     }
@@ -55,7 +57,9 @@ pub await fn owner.PlayTutorial {
         
         BottomContent {
             VStack(padding=1) {
-                "Place 5 matching dice along the bottom row"
+                P(fontSize=1.2) {
+                    "Place 5 matching dice along the bottom row"
+                }
             }
         }
     

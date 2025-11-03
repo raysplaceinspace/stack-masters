@@ -42,7 +42,7 @@ pub page fn owner.HomePage {
         P(fontSize=0.9, color=#aaa) {
             "This game was made with "
             Link("https://easel.games") { "Easel" }
-            " - the behavior-oriented online game engine for everyone!"
+            " - the remixable online game engine for humans!"
         }
         
         H2 { "Leaderboard" }
@@ -63,7 +63,7 @@ pub page fn owner.HomePage {
                 let rank = 1
                 for player in FetchedLeaderboard %%{
                     let isMe = player.UserId == owner.UserId
-                    ShinyPanel(backgroundColor=isMe ? #fc0 : #0fb, vPadding=0.4) {
+                    ShinyPanel(backgroundColor=isMe ? #f80 : #0fb, vPadding=0.4) {
                         HStack {
                             P(fontSize=0.75, color=#eee, width=1.5, align=Align:Center) {
                                 %(rank)
