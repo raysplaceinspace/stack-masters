@@ -18,14 +18,14 @@ pub page fn owner.HomePage {
     }
     
     Content {
-        Panel {
+        Panel(backgroundColor=#620080, animate=Animate:FlyFromTop) {
             HStack {
                 VStack {
                     H1(margin=0) { %(ProjectName) }
                     P { "Do you lack or do you stack?" }
                 }
                 Blank(expand=true)
-                RaisedButton(Main, autoClick=!HasPlayedBefore, backgroundColor=Color:Primary, width=20, fontSize=2) { "Play" }
+                RaisedButton(Main, autoClick=!HasPlayedBefore, backgroundColor=Color:Primary, width=20, fontSize=2, borderRounding=1, animate=Animate:Throb) { "Play" }
             }
         }
         
@@ -60,10 +60,13 @@ pub page fn owner.HomePage {
 
         with FetchedLeaderboard, PlayerName {
             if FetchedLeaderboard {
+                let foundMyself = false
                 let rank = 1
                 for player in FetchedLeaderboard %%{
                     let isMe = player.UserId == owner.UserId
-                    ShinyPanel(backgroundColor=isMe ? #f80 : #0fb, vPadding=0.4) {
+                    if isMe { foundMyself = true }
+                    
+                    ShinyPanel(backgroundColor=isMe ? #f80 : #b0f, vPadding=0.4) {
                         HStack {
                             P(fontSize=0.75, color=#eee, width=1.5, align=Align:Center) {
                                 %(rank)
@@ -82,6 +85,27 @@ pub page fn owner.HomePage {
                     }
         
                     rank += 1
+                }
+
+                if HighestElapsedDuration > 0 && !foundMyself {
+                    Blank(height=1)
+                    ShinyPanel(backgroundColor=#f80, vPadding=0.4) {
+                        HStack {
+                            P(fontSize=0.75, color=#eee, width=1.5, align=Align:Center) {
+                                "?"
+                            }
+                            P(fontSize=1.5, bold=true) {
+                                PlayerNameDisplay(color=#fff)
+                            }
+        
+                            Blank(expand=true)
+        
+                            P {
+                                %(Round(HighestElapsedDuration / 1s))
+                                " seconds"
+                            }
+                        }
+                    }
                 }
         
                 if FetchedLeaderboard.IsEmpty {
