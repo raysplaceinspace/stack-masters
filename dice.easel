@@ -34,7 +34,7 @@ pub fn dice.Dice(pos, diceNumber) {
     DiceSilentUntil = Tick + 0.1s // No sound when spawning
 
     Body(pos=, heading=Random*1rev)
-    PolygonCollider(category=Category:Dice, friction=0.1)
+    PolygonCollider(category=Category:Dice, friction=0.03)
     ImageSprite(@dice.svg, shading=0.5, shadow=0.25, color=)
     ImageSprite(DiceDotsLookup[DiceNumber], color=#fff)
 
