@@ -78,8 +78,9 @@ pub page fn owner.HomePage {
                             Blank(expand=true)
         
                             P {
-                                %(Round(player.HighestElapsedDuration / 1s))
-                                " seconds"
+                                let seconds = Round((player.HighestElapsedDuration / 1s) % 60)
+                                let minutes = Floor(player.HighestElapsedDuration / 1m)
+                                %(minutes > 0 ? minutes + "m " + seconds + "s" : seconds + "s")
                             }
                         }
                     }
