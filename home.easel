@@ -23,7 +23,7 @@ pub page fn owner.HomePage {
 
     ContentScreen(expand=false) {
         VStack(gap=0) {
-            VStack(backgroundColor=#0008, padding=1) {
+            VStack(backgroundColor=#2136, padding=1) {
                 Blank(height=5)
 
                 HStack(align=Align:Center, animate=Animate:FlyFromTop) {
@@ -43,7 +43,7 @@ pub page fn owner.HomePage {
                 Blank(height=1)
             }
                
-            VStack(backgroundColor=#0004, align=Align:Center, vPadding=1) {
+            VStack(backgroundColor=#2133, align=Align:Center, vPadding=1) {
                 P(fontSize=0.9) { "Choose Your Name" }
                 VStack(width=30) {
                     PlayerNameEditor
