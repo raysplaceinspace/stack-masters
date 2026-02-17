@@ -7,6 +7,10 @@ pub page fn owner.HomePage {
 
     Toolbar {
         VolumeToggle
+        FlatButton(ShareIntent) {
+            Icon("fa-solid fa-share-alt")
+            " Share"
+        }
     }
 
     ToolbarRight {
@@ -19,7 +23,7 @@ pub page fn owner.HomePage {
 
     ContentScreen(expand=false) {
         VStack(gap=0) {
-            VStack(backgroundColor=#000c, padding=1) {
+            VStack(backgroundColor=#0008, padding=1) {
                 Blank(height=5)
 
                 HStack(align=Align:Center, animate=Animate:FlyFromTop) {
@@ -45,7 +49,6 @@ pub page fn owner.HomePage {
                     PlayerNameEditor
                 }
                 RaisedButton(Main, autoClick=!HasPlayedBefore, backgroundColor=Color:Primary, width=25, fontSize=1.5) { "Play" }
-                RaisedButton(ShareIntent, backgroundColor=Color:Secondary, width=25) { "Share" }
             }
         }
         P(fontSize=0.9, color=#aaa) {
@@ -53,8 +56,6 @@ pub page fn owner.HomePage {
             Link("https://easel.games") { "Easel" }
             " - the beginner-friendly programming language for 2D multiplayer games!"
         }
-
-        
     }
     
     Content {
