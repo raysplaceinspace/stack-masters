@@ -44,11 +44,11 @@ pub page fn owner.HomePage {
             }
                
             VStack(backgroundColor=#0004, align=Align:Center, vPadding=1) {
-                P(fontSize=0.8) { "Choose Your Name" }
-                VStack(width=25) {
+                P(fontSize=0.9) { "Choose Your Name" }
+                VStack(width=30) {
                     PlayerNameEditor
                 }
-                RaisedButton(Main, autoClick=!HasPlayedBefore, backgroundColor=Color:Primary, width=25, fontSize=1.5) { "Play" }
+                RaisedButton(Main, autoClick=!HasPlayedBefore, backgroundColor=Color:Primary, width=30, fontSize=1.5) { "Play" }
             }
         }
         P(fontSize=0.9, color=#aaa) {
